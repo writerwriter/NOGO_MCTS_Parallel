@@ -113,7 +113,7 @@ class MCTStree{
                 }
             }
             if(b.check_is_end()){
-                result = b.just_play_color() == BLACK ? 1 : -1;
+                result = b.just_play_color() == BLACK ? 1 : 0;
             }
             else{
                 result = b.simulate();

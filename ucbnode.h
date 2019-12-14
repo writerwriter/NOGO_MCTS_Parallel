@@ -42,17 +42,17 @@ class ucbnode {
             memset(child, -1, sizeof(child));
         }
         void update(double result){
-            if((result > 0 && color == BLACK) || (result < 0 && color == WHITE)){
-                mean = (mean * count + 1) / (count + 1);
+            if((color == BLACK)){
+                mean = (mean * count + result) / (count + 1);
             }
             else{
-                mean = (mean * count) / (count + 1);
+                mean = (mean * count + 1 - result) / (count + 1);
             }
             count += 1;
             setlnc();
         }
         void updaterave(double result){
-            if((result > 0 && color == BLACK) || (result < 0 && color == WHITE)){
+            if((result > 0 && color == BLACK) || (result == 0 && color == WHITE)){
                 ravemean = (ravemean * ravecount + 1) / (ravecount + 1);
             }
             else{

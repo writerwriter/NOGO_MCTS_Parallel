@@ -259,7 +259,7 @@ int board::simulate(){
                     goto FLAG;
                 }
             }
-            return -1;
+            return 0;
         }
         else if(j == WHITE){
             while(wlegalsize > 0){
