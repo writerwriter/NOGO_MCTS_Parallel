@@ -41,24 +41,24 @@ class ucbnode {
             ravemean = rm;
             memset(child, -1, sizeof(child));
         }
-        void update(double result){
-            if((result > 0 && color == BLACK) || (result < 0 && color == WHITE)){
-                mean = (mean * count + 1) / (count + 1);
+        void update(double result, int thread_num){
+            if(color == BLACK){
+                mean = (mean * count + result) / (count + thread_num);
             }
             else{
-                mean = (mean * count) / (count + 1);
+                mean = (mean * count + thread_num - result) / (count + thread_num);
             }
-            count += 1;
+            count += thread_num;
             setlnc();
         }
-        void updaterave(double result){
-            if((result > 0 && color == BLACK) || (result < 0 && color == WHITE)){
-                ravemean = (ravemean * ravecount + 1) / (ravecount + 1);
+        void updaterave(double result, int thread_num){
+            if(color == BLACK){
+                ravemean = (ravemean * ravecount + result) / (ravecount + thread_num);
             }
             else{
-                ravemean = (ravemean * ravecount) / (ravecount + 1);
+                ravemean = (ravemean * ravecount + thread_num - result) / (ravecount + thread_num);
             }
-            ravecount++;
+            ravecount+= thread_num;
         }
 
         void expansion(board &b, double rave_num[2][BOARDSSIZE], double rave_win_num[2][BOARDSSIZE]){

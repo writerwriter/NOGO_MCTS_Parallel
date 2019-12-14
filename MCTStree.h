@@ -2,6 +2,8 @@
 #define MCTS_H
 #include "ucbnode.h"
 
+typedef void * (*THREADFUNCPTR)(void *);
+
 class MCTStree{
     public:
         ucbnode* root;
@@ -72,20 +74,19 @@ class MCTStree{
             }
         }
 
-        void update(double result, board& b){
+        void update(double result, int thread_num, board& b){
             for(int i = 0; i < path.size(); i++){
-                path[i] -> update(result);
+                path[i] -> update(result, thread_num);
                 if(path[i] -> color == 0){
                     for(int j = 0; j < b.wpsize; j++){
                         int k = (path[i] -> child[b.wpath[j]]);
-                        //printf("%d ", path[i] -> childptr == NULL);
-                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result);
+                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result, thread_num);
                     }
                 }
                 else{
                     for(int j = 0; j < b.bpsize; j++){
                         int k = (path[i] -> child[b.bpath[j]]);
-                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result);
+                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result, thread_num);
                     }
                 }
             }
@@ -94,6 +95,7 @@ class MCTStree{
         void MCTS(){
             board b;
             double result;
+            int thread_num = 4;
             b = rboard;
             select(b); //get to the best leaf node
             ucbnode &last = (*(path.back()));
@@ -113,13 +115,13 @@ class MCTStree{
                 }
             }
             if(b.check_is_end()){
-                result = b.just_play_color() == BLACK ? 1 : -1;
+                result = b.just_play_color() == BLACK ? 1 : 0;
             }
             else{
-                result = b.simulate();
+                result = b.threaded_simulate(thread_num);
             }
             //b.showboard();
-            update(result, b);
+            update(result, thread_num, b);
         }
         void reset(board &b){
             rboard = b;
@@ -160,6 +162,7 @@ class MCTStree{
         {
             return inttoGTPstring(i);
         }
+
 };
 
 #endif

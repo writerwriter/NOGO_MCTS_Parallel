@@ -1,5 +1,6 @@
 #include "board.h"
 
+
 const boardcn board::nb;
 char board::bpath[BOARDSSIZE+10];
 int board::bpsize;
@@ -278,4 +279,71 @@ int board::simulate(){
             return 1;
         }
     }
+}
+
+void* board::thread_simulate(){
+    int blegalsize = 0;
+    int wlegalsize = 0;
+    int blegal[BOARDSSIZE], wlegal[BOARDSSIZE];
+    memset(blegal, 0, sizeof(blegal));
+    memset(wlegal, 0, sizeof(wlegal));
+    getlegalmove(blegal, wlegal, blegalsize, wlegalsize);
+    bool j = !just_play_color();
+    while(true){
+        FLAG:
+        if(j == BLACK){
+            while(blegalsize > 0){
+                int i = rand() % blegalsize;
+                int k = blegal[i];
+                blegal[i] = blegal[blegalsize - 1];
+                blegalsize--;
+                if(check(k, j)){
+                    bpath[bpsize] = k;
+                    bpsize++;
+                    add(k, j);
+                    j = !j;
+                    goto FLAG;
+                }
+            }
+            pthread_exit((void *)0);
+        }
+        else{
+            while(wlegalsize > 0){
+                int i = rand() % wlegalsize;
+                int k = wlegal[i];
+                wlegal[i] = wlegal[wlegalsize - 1];
+                wlegalsize--;
+                if(check(k, j)){
+                    wpath[wpsize] = k;
+                    wpsize++;
+                    add(k, j);
+                    j = !j;
+                    goto FLAG;
+                }
+            }
+            pthread_exit((void *)1);
+        }
+    }
+}
+
+void* board::thread_helper(void* b){
+    return ((board* )b) -> thread_simulate();
+}
+
+int board::threaded_simulate(int thread_num){
+    pthread_t* simulate_thread = new pthread_t[thread_num];
+    //board *simulate_board = new board[thread_num];
+    void* result;
+    int final = 0;
+    for (int i = 0; i < thread_num; i++){
+        //simulate_board[i] = *this;
+        pthread_create(&simulate_thread[i], NULL, &board::thread_helper, this);
+    }
+    for (int i = 0; i < thread_num; i++){
+        pthread_join(simulate_thread[i], &result);
+        final += (int)result;
+    }
+    delete[] simulate_thread;
+    //delete[] simulate_board;
+    return final;
 }

@@ -10,6 +10,7 @@
 #include<string>
 #include<stdlib.h>
 #include<math.h>
+#include<pthread.h>
 
 #define BLACK 0
 #define WHITE 1
@@ -59,5 +60,8 @@ class board{
         bool check_is_end();
         void getlegalmove(int blegal[BOARDSSIZE], int wlegal[BOARDSSIZE], int& blegalsize, int& wlegalsize);
         int simulate();
+        void* thread_simulate();
+        static void *thread_helper(void *b);
+        int threaded_simulate(int thread_num);
 };
 #endif
