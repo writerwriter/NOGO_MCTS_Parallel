@@ -17,7 +17,7 @@ string inttoGTPstring(int i)
 {
 	string s = "A1";
     s[0]+= i / 9;
-    if(s[0]>'I')s[0]++;
+    if(s[0]>='I')s[0]++;
     s[1]+= i % 9;
     return s;
 }

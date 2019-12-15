@@ -15,9 +15,9 @@ class ucbnode {
         ucbnode* childptr;
         double lnc;
         int childnum;
-        double ravecount;
-        double ravemean;
-        char child[BOARDSSIZE + 1]; //find children at specific position
+        //double ravecount;
+        //double ravemean;
+        //char child[BOARDSSIZE + 1]; //find children at specific position
 
         ucbnode(){}
         ~ucbnode(){
@@ -29,7 +29,7 @@ class ucbnode {
         void setlnc(){
             lnc = log(count);
         }
-        void initucbnode(int i, bool j, double rc, double rm){
+        void initucbnode(int i, bool j){
             place = i;
             color = j;
             mean = 0.5;
@@ -37,9 +37,9 @@ class ucbnode {
             childnum = 0;
             childptr = NULL;
             lnc = 1;
-            ravecount = rc;
-            ravemean = rm;
-            memset(child, -1, sizeof(child));
+            //ravecount = rc;
+            //ravemean = rm;
+            //memset(child, -1, sizeof(child));
         }
         void update(double result, int thread_num){
             if(color == BLACK){
@@ -51,7 +51,7 @@ class ucbnode {
             count += thread_num;
             setlnc();
         }
-        void updaterave(double result, int thread_num){
+        /*void updaterave(double result, int thread_num){
             if(color == BLACK){
                 ravemean = (ravemean * ravecount + result) / (ravecount + thread_num);
             }
@@ -59,9 +59,9 @@ class ucbnode {
                 ravemean = (ravemean * ravecount + thread_num - result) / (ravecount + thread_num);
             }
             ravecount+= thread_num;
-        }
+        }*/
 
-        void expansion(board &b, double rave_num[2][BOARDSSIZE], double rave_win_num[2][BOARDSSIZE]){
+        void expansion(board &b){
             int k = 0;
             bool j = !b.just_play_color();
             childnum = 0;
@@ -74,13 +74,13 @@ class ucbnode {
                 return;
             }
             childptr = new ucbnode [childnum];
-            double rmean, rcount;
+            //double rmean, rcount;
             for(int i = 0; i < BOARDSSIZE; i++){
                 if(b.check(i, j)){
-                    child[i] = k;
-                    rmean = 0.5;
-                    rcount = ravenum;
-                    childptr[k].initucbnode(i, j, rcount, rmean);
+                    //child[i] = k;
+                    //rmean = 0.5;
+                    //rcount = ravenum;
+                    childptr[k].initucbnode(i, j);
                     k++;
                 }
             }

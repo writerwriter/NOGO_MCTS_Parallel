@@ -1,11 +1,12 @@
 #include "board.h"
+#include <random>
 
 
 const boardcn board::nb;
-char board::bpath[BOARDSSIZE+10];
-int board::bpsize;
-char board::wpath[BOARDSSIZE+10];
-int board::wpsize;
+//char board::bpath[16 * BOARDSSIZE + 10];
+//int board::bpsize;
+//char board::wpath[16 * BOARDSSIZE + 10];
+//int board::wpsize;
 
 board::board(){}
 
@@ -253,8 +254,8 @@ int board::simulate(){
                 blegal[i] = blegal[blegalsize - 1];
                 blegalsize--;
                 if(check(k, j)){
-                    bpath[bpsize] = k;
-                    bpsize++;
+                    //bpath[bpsize] = k;
+                    //bpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -269,8 +270,8 @@ int board::simulate(){
                 wlegal[i] = wlegal[wlegalsize - 1];
                 wlegalsize--;
                 if(check(k, j)){
-                    wpath[wpsize] = k;
-                    wpsize++;
+                    //wpath[wpsize] = k;
+                    //wpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -289,17 +290,21 @@ void* board::thread_simulate(){
     memset(wlegal, 0, sizeof(wlegal));
     getlegalmove(blegal, wlegal, blegalsize, wlegalsize);
     bool j = !just_play_color();
+
+    random_device rd;
+    static mt19937 generator = mt19937(rd());
     while(true){
         FLAG:
         if(j == BLACK){
             while(blegalsize > 0){
-                int i = rand() % blegalsize;
+                uniform_int_distribution<int> distribution(0, blegalsize - 1);
+                int i = distribution(generator);
                 int k = blegal[i];
                 blegal[i] = blegal[blegalsize - 1];
                 blegalsize--;
                 if(check(k, j)){
-                    bpath[bpsize] = k;
-                    bpsize++;
+                    //bpath[bpsize] = k;
+                    //bpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -308,14 +313,15 @@ void* board::thread_simulate(){
             pthread_exit((void *)0);
         }
         else{
-            while(wlegalsize > 0){
-                int i = rand() % wlegalsize;
+            while(wlegalsize > 0){                
+                uniform_int_distribution<int> distribution(0, wlegalsize - 1);
+                int i = distribution(generator);
                 int k = wlegal[i];
                 wlegal[i] = wlegal[wlegalsize - 1];
                 wlegalsize--;
                 if(check(k, j)){
-                    wpath[wpsize] = k;
-                    wpsize++;
+                    //wpath[wpsize] = k;
+                    //wpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -332,18 +338,18 @@ void* board::thread_helper(void* b){
 
 int board::threaded_simulate(int thread_num){
     pthread_t* simulate_thread = new pthread_t[thread_num];
-    //board *simulate_board = new board[thread_num];
+    board *simulate_board = new board[thread_num];
     void* result;
     int final = 0;
     for (int i = 0; i < thread_num; i++){
-        //simulate_board[i] = *this;
-        pthread_create(&simulate_thread[i], NULL, &board::thread_helper, this);
+        simulate_board[i] = *this;
+        pthread_create(&simulate_thread[i], NULL, &board::thread_helper, &simulate_board[i]);
     }
     for (int i = 0; i < thread_num; i++){
         pthread_join(simulate_thread[i], &result);
         final += (int)result;
     }
     delete[] simulate_thread;
-    //delete[] simulate_board;
+    delete[] simulate_board;
     return final;
 }
