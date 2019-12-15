@@ -28,22 +28,8 @@ class board{
         bitboard liberty[BOARDCUL * BOARDCUL];
         char countliberty[BOARDSSIZE];
 
-        //static char bpath[16 * BOARDSSIZE + 10];
-        //static int bpsize;
-        //static char wpath[16 * BOARDSSIZE + 10];
-        //static int wpsize;
-
         board();
         board(bitboard bb, bitboard ww);
-        /*inline void addbp(int k){
-            bpath[bpsize] = k;
-            bpsize++;
-        }
-
-        inline void addwp(int k){
-            wpath[wpsize] = k;
-            wpsize++;
-        }*/
         void Initboard(bitboard bb, bitboard ww);
         inline bool get(int i, bool j);
         void setData();

@@ -15,10 +15,6 @@ class ucbnode {
         ucbnode* childptr;
         double lnc;
         int childnum;
-        //double ravecount;
-        //double ravemean;
-        //char child[BOARDSSIZE + 1]; //find children at specific position
-
         ucbnode(){}
         ~ucbnode(){
             if(childptr != NULL){
@@ -37,9 +33,6 @@ class ucbnode {
             childnum = 0;
             childptr = NULL;
             lnc = 1;
-            //ravecount = rc;
-            //ravemean = rm;
-            //memset(child, -1, sizeof(child));
         }
         void update(double result, int thread_num){
             if(color == BLACK){
@@ -51,15 +44,6 @@ class ucbnode {
             count += thread_num;
             setlnc();
         }
-        /*void updaterave(double result, int thread_num){
-            if(color == BLACK){
-                ravemean = (ravemean * ravecount + result) / (ravecount + thread_num);
-            }
-            else{
-                ravemean = (ravemean * ravecount + thread_num - result) / (ravecount + thread_num);
-            }
-            ravecount+= thread_num;
-        }*/
 
         void expansion(board &b){
             int k = 0;
@@ -74,12 +58,8 @@ class ucbnode {
                 return;
             }
             childptr = new ucbnode [childnum];
-            //double rmean, rcount;
             for(int i = 0; i < BOARDSSIZE; i++){
                 if(b.check(i, j)){
-                    //child[i] = k;
-                    //rmean = 0.5;
-                    //rcount = ravenum;
                     childptr[k].initucbnode(i, j);
                     k++;
                 }

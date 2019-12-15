@@ -100,9 +100,6 @@ int main(int argc, char** argv){
                 tree.MCTS();
                 simulationcount += 10;
                 end_time = clock();
-                /*if(simulationcount % 10000 == 0){
-                    tree.show_path();
-                }*/
                 if((end_time - start_time) / CLOCKS_PER_SEC >= 1){
                     break;
                 }

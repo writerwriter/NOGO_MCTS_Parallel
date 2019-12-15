@@ -3,10 +3,6 @@
 
 
 const boardcn board::nb;
-//char board::bpath[16 * BOARDSSIZE + 10];
-//int board::bpsize;
-//char board::wpath[16 * BOARDSSIZE + 10];
-//int board::wpsize;
 
 board::board(){}
 
@@ -254,8 +250,6 @@ int board::simulate(){
                 blegal[i] = blegal[blegalsize - 1];
                 blegalsize--;
                 if(check(k, j)){
-                    //bpath[bpsize] = k;
-                    //bpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -270,8 +264,6 @@ int board::simulate(){
                 wlegal[i] = wlegal[wlegalsize - 1];
                 wlegalsize--;
                 if(check(k, j)){
-                    //wpath[wpsize] = k;
-                    //wpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -303,8 +295,6 @@ void* board::thread_simulate(){
                 blegal[i] = blegal[blegalsize - 1];
                 blegalsize--;
                 if(check(k, j)){
-                    //bpath[bpsize] = k;
-                    //bpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
@@ -320,8 +310,6 @@ void* board::thread_simulate(){
                 wlegal[i] = wlegal[wlegalsize - 1];
                 wlegalsize--;
                 if(check(k, j)){
-                    //wpath[wpsize] = k;
-                    //wpsize++;
                     add(k, j);
                     j = !j;
                     goto FLAG;
