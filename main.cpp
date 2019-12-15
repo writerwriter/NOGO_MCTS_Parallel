@@ -17,7 +17,7 @@ string inttoGTPstring(int i)
 {
 	string s = "A1";
     s[0]+= i / 9;
-    if(s[0]>'I')s[0]++;
+    if(s[0]>='I')s[0]++;
     s[1]+= i % 9;
     return s;
 }
@@ -100,9 +100,6 @@ int main(int argc, char** argv){
                 tree.MCTS();
                 simulationcount += 10;
                 end_time = clock();
-                /*if(simulationcount % 10000 == 0){
-                    tree.show_path();
-                }*/
                 if((end_time - start_time) / CLOCKS_PER_SEC >= 1){
                     break;
                 }

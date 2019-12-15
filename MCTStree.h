@@ -9,8 +9,6 @@ class MCTStree{
         int selectsize; //同分的child有多少
         vector<ucbnode*> path;
         board rboard; //root board
-        double rave_num[2][BOARDSSIZE];
-        double rave_win_num[2][BOARDSSIZE];
 
 
         MCTStree(){}
@@ -23,9 +21,7 @@ class MCTStree{
         double getscore(ucbnode* nodeptr, int child){
             ucbnode* tmp = (nodeptr->childptr) + child;
             double &count = tmp -> count;
-            double &rave_count = tmp -> ravecount;
-            double temp = tmp -> ravemean * rave_count + tmp -> mean * count + sqrt(nodeptr -> lnc * count) * UCB_WEIGHT;
-            return temp / (count + rave_count);
+            return tmp->mean + UCB_WEIGHT * sqrt(nodeptr->lnc / (count + 1));
         }
 
         ucbnode* getbestchild(ucbnode* nodeptr){
@@ -55,19 +51,11 @@ class MCTStree{
 
         void select(board &b){
             ucbnode* nodeptr = root;
-            b.bpsize=0;
-	        b.wpsize=0;
             path.clear();
             path.push_back(nodeptr);
             while(nodeptr -> childptr != NULL && nodeptr -> childnum != 0){
                 nodeptr = getbestchild(nodeptr);
                 path.push_back(nodeptr);
-                if(nodeptr -> color == BLACK){
-                    b.addbp(nodeptr -> place);
-                }
-                else{
-                    b.addwp(nodeptr -> place);
-                }
                 b.add(nodeptr -> place, nodeptr -> color);
             }
         }
@@ -75,19 +63,6 @@ class MCTStree{
         void update(double result, board& b){
             for(int i = 0; i < path.size(); i++){
                 path[i] -> update(result);
-                if(path[i] -> color == 0){
-                    for(int j = 0; j < b.wpsize; j++){
-                        int k = (path[i] -> child[b.wpath[j]]);
-                        //printf("%d ", path[i] -> childptr == NULL);
-                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result);
-                    }
-                }
-                else{
-                    for(int j = 0; j < b.bpsize; j++){
-                        int k = (path[i] -> child[b.bpath[j]]);
-                        if(k != -1) ((path[i] -> childptr) + k) -> updaterave(result);
-                    }
-                }
             }
         }
 
@@ -99,16 +74,10 @@ class MCTStree{
             ucbnode &last = (*(path.back()));
             ucbnode *nodeptr;
             if(last.childnum == 0 && last.count > basenum){
-                last.expansion(b, rave_num, rave_win_num);
+                last.expansion(b);
                 if(last.childnum != 0){
                     nodeptr = getbestchild(&last);
                     path.push_back(nodeptr);
-                    if(nodeptr -> color == BLACK){
-                        b.addbp(nodeptr -> place);
-                    }
-                    else{
-                        b.addwp(nodeptr -> place);
-                    }
                     b.add(nodeptr -> place, nodeptr -> color);
                 }
             }
@@ -118,7 +87,6 @@ class MCTStree{
             else{
                 result = b.simulate();
             }
-            //b.showboard();
             update(result, b);
         }
         void reset(board &b){
@@ -128,8 +96,7 @@ class MCTStree{
             root -> place = 81;
             root -> count = basenum;
             root -> lnc = 1;
-            memset(root -> child, -1, sizeof(root -> child));
-            root -> expansion(b, rave_num, rave_win_num);
+            root -> expansion(b);
         }
         void show_path(){
             ucbnode* nodeptr = root;

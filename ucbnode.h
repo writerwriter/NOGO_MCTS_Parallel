@@ -15,9 +15,6 @@ class ucbnode {
         ucbnode* childptr;
         double lnc;
         int childnum;
-        double ravecount;
-        double ravemean;
-        char child[BOARDSSIZE + 1]; //find children at specific position
 
         ucbnode(){}
         ~ucbnode(){
@@ -29,7 +26,7 @@ class ucbnode {
         void setlnc(){
             lnc = log(count);
         }
-        void initucbnode(int i, bool j, double rc, double rm){
+        void initucbnode(int i, bool j){
             place = i;
             color = j;
             mean = 0.5;
@@ -37,9 +34,6 @@ class ucbnode {
             childnum = 0;
             childptr = NULL;
             lnc = 1;
-            ravecount = rc;
-            ravemean = rm;
-            memset(child, -1, sizeof(child));
         }
         void update(double result){
             if((color == BLACK)){
@@ -51,17 +45,8 @@ class ucbnode {
             count += 1;
             setlnc();
         }
-        void updaterave(double result){
-            if((result > 0 && color == BLACK) || (result == 0 && color == WHITE)){
-                ravemean = (ravemean * ravecount + 1) / (ravecount + 1);
-            }
-            else{
-                ravemean = (ravemean * ravecount) / (ravecount + 1);
-            }
-            ravecount++;
-        }
 
-        void expansion(board &b, double rave_num[2][BOARDSSIZE], double rave_win_num[2][BOARDSSIZE]){
+        void expansion(board &b){
             int k = 0;
             bool j = !b.just_play_color();
             childnum = 0;
@@ -74,13 +59,9 @@ class ucbnode {
                 return;
             }
             childptr = new ucbnode [childnum];
-            double rmean, rcount;
             for(int i = 0; i < BOARDSSIZE; i++){
                 if(b.check(i, j)){
-                    child[i] = k;
-                    rmean = 0.5;
-                    rcount = ravenum;
-                    childptr[k].initucbnode(i, j, rcount, rmean);
+                    childptr[k].initucbnode(i, j);
                     k++;
                 }
             }
