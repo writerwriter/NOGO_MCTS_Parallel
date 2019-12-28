@@ -10,7 +10,6 @@
 #include<string>
 #include<stdlib.h>
 #include<math.h>
-#include<pthread.h>
 
 #define BLACK 0
 #define WHITE 1
@@ -22,7 +21,7 @@ class board{
         bitboard ban[2];    //speed up check process
         bitboard bitb[2];
 
-        const static boardcn nb;
+        boardcn nb;
 
         char parent[BOARDCUL * BOARDCUL];
         bitboard liberty[BOARDCUL * BOARDCUL];
@@ -34,20 +33,18 @@ class board{
         inline bool get(int i, bool j);
         void setData();
         void getAllLiberty();
-        int findParent(int i);
-        void unite(int x, int y);
-        void add(int i, bool j);
-        bool just_play_color();
-        bool check(int i, bool j);
+        __host__ __device__ int findParent(int i);
+        __host__ __device__ void unite(int x, int y);
+        __host__ __device__ void add(int i, bool j);
+        __host__ __device__ bool just_play_color();
+        __host__ __device__ bool check(int i, bool j);
         void clear();
         void showboard();
         void showParent();
         bool isempty();
         bool check_is_end();
-        void getlegalmove(int blegal[BOARDSSIZE], int wlegal[BOARDSSIZE], int& blegalsize, int& wlegalsize);
+        __host__ __device__ void getlegalmove(int blegal[BOARDSSIZE], int wlegal[BOARDSSIZE], int& blegalsize, int& wlegalsize);
         int simulate();
-        void* thread_simulate();
-        static void *thread_helper(void *b);
-        int threaded_simulate(int thread_num);
+        int threaded_simulate_gpu();
 };
 #endif

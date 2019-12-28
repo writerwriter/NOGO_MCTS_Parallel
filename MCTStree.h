@@ -2,6 +2,7 @@
 #define MCTS_H
 #include "ucbnode.h"
 
+#define BLOCK_SIZE 1024
 typedef void * (*THREADFUNCPTR)(void *);
 
 class MCTStree{
@@ -88,7 +89,7 @@ class MCTStree{
                 result = b.just_play_color() == BLACK ? 1 : 0;
             }
             else{
-                result = b.threaded_simulate(thread_num);
+                result = b.threaded_simulate_gpu();
             }
             update(result, thread_num, b);
         }
