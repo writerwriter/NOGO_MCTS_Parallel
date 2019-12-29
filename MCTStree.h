@@ -72,7 +72,7 @@ class MCTStree{
         void MCTS(){
             board b;
             double result;
-            int thread_num = 16;
+            int block_num = 4;
             b = rboard;
             select(b); //get to the best leaf node
             ucbnode &last = (*(path.back()));
@@ -89,9 +89,9 @@ class MCTStree{
                 result = b.just_play_color() == BLACK ? 1 : 0;
             }
             else{
-                result = b.threaded_simulate_gpu();
+                result = b.threaded_simulate_gpu(block_num);
             }
-            update(result, thread_num, b);
+            update(result, block_num * BLOCK_SIZE, b);
         }
         void reset(board &b){
             rboard = b;

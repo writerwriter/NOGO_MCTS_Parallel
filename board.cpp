@@ -415,9 +415,8 @@ __global__ void set_random(curandState* state, long seed){
     curand_init(seed, id, 0, &state[id]);
 }
 
-int board::threaded_simulate_gpu()
+int board::threaded_simulate_gpu(int block_num)
 {
-    int block_num = 1;
     int total_threads = BLOCK_SIZE * block_num;
     int *result_device;
     int *result = new int[total_threads];

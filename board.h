@@ -45,6 +45,6 @@ class board{
         bool check_is_end();
         __host__ __device__ void getlegalmove(int blegal[BOARDSSIZE], int wlegal[BOARDSSIZE], int& blegalsize, int& wlegalsize);
         int simulate();
-        int threaded_simulate_gpu();
+        int threaded_simulate_gpu(int block_num);
 };
 #endif
