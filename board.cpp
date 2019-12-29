@@ -421,6 +421,7 @@ int board::threaded_simulate_gpu()
     int total_threads = BLOCK_SIZE * block_num;
     int *result_device;
     int *result = new int[total_threads];
+    memset(result, 0, sizeof(result));
     int final = 0;
 
     curandState *dev_states;
@@ -428,9 +429,11 @@ int board::threaded_simulate_gpu()
     long clock_for_rand = clock();
     set_random<<<block_num, BLOCK_SIZE>>>(dev_states, clock_for_rand);
 
-    cudaMalloc((void **)&result_device, total_threads);
+    cudaMalloc((void **)&result_device, total_threads * sizeof(int));
+    cudaMemset(result_device, 0, total_threads * sizeof(int));
     thread_simulate_gpu<<<block_num, BLOCK_SIZE>>>(result_device, *this, dev_states);
-    cudaMemcpy(result, result_device, total_threads, cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
+    cudaMemcpy(result, result_device, total_threads * sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(result_device);
     for (int i = 0; i < total_threads; i++){
         final += result[i];
