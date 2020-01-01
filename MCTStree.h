@@ -1,13 +1,15 @@
 #ifndef MCTS_H
 #define MCTS_H
 #include "ucbnode.h"
-
+#include <pthread.h>//*
+#include <stdlib.h>
 class MCTStree{
     public:
+        pthread_mutex_t lock;//*
         ucbnode* root;
-        int selectlist[BOARDSSIZE]; //同分的node
-        int selectsize; //同分的child有多少
-        vector<ucbnode*> path;
+        int selectlist[BOARDSSIZE]; //?��??�node
+        int selectsize; //?��??�child?��?�?        
+        //vector<ucbnode*> path;
         board rboard; //root board
 
 
@@ -32,7 +34,7 @@ class MCTStree{
             selectsize = 1;
             for(int i = 1; i < (nodeptr->childnum); i++){
                 tmp = getscore(nodeptr, i);
-                double diff = tmp - ans; //+-0.0001視為相等 高於0.0001表示新的node更好
+                double diff = tmp - ans; //+-0.0001視為?��? 高於0.0001表示?��?node?�好
                 if(diff > -0.0001){
                     if(diff > 0.0001){
                         selectlist[0] = i;
@@ -45,11 +47,11 @@ class MCTStree{
                     }
                 }
             }
-            int best = selectlist[rand() % selectsize]; //隨機選一個value相等的node當作best node
+            int best = selectlist[rand() % selectsize]; //?��??��??�value?��??�node?��?best node
             return nodeptr -> childptr + best;
         }
 
-        void select(board &b){
+        void select(board &b,vector<ucbnode*> &path){
             ucbnode* nodeptr = root;
             path.clear();
             path.push_back(nodeptr);
@@ -60,34 +62,71 @@ class MCTStree{
             }
         }
 
-        void update(double result, board& b){
+        void update(double result, board& b,vector<ucbnode*> &path){
             for(int i = 0; i < path.size(); i++){
                 path[i] -> update(result);
             }
         }
-
         void MCTS(){
+            unsigned long long  number_of_cpu=16;
+            pthread_t* threads = (pthread_t*)malloc(number_of_cpu * sizeof(pthread_t));//*
+            pthread_mutex_init(&lock, NULL);
+            for (unsigned long long i = 0; i < number_of_cpu; i++) {
+            		if (pthread_create(&threads[i], NULL, &MCTStree::send_wrapper, this)) {
+            			  printf("Error: pthread_create()\n");
+            			  exit(1);
+      		      }              
+	          }
+            for (unsigned long long i = 0; i < number_of_cpu; i++) {
+		            pthread_join(threads[i], NULL);
+            }
+            free(threads);
+            //pthread_mutex_destroy(&lock);
+        }
+        static void* send_wrapper(void* object)
+        {
+            reinterpret_cast<MCTStree*>(object)->MCTSS();
+            //printf("1\n");
+            return 0;
+        }
+        void MCTSS(){
+            vector<ucbnode*> path;
+            pthread_t   tid;
+ 
+            tid = pthread_self();
+            //printf("%lu tid %lu (0x%lx)\n", (unsigned long)tid, (unsigned long)tid);
+            //printf("2\n");
             board b;
             double result;
             b = rboard;
-            select(b); //get to the best leaf node
+            pthread_mutex_lock(&lock);
+            //printf("3\n");
+            select(b,path); //get to the best leaf node
+            pthread_mutex_unlock(&lock);
             ucbnode &last = (*(path.back()));
             ucbnode *nodeptr;
+            pthread_mutex_lock(&lock);
             if(last.childnum == 0 && last.count > basenum){
+                
                 last.expansion(b);
+                
                 if(last.childnum != 0){
                     nodeptr = getbestchild(&last);
                     path.push_back(nodeptr);
                     b.add(nodeptr -> place, nodeptr -> color);
                 }
             }
+            pthread_mutex_unlock(&lock);
             if(b.check_is_end()){
                 result = b.just_play_color() == BLACK ? 1 : 0;
             }
             else{
                 result = b.simulate();
             }
-            update(result, b);
+            pthread_mutex_lock(&lock);
+            update(result, b,path);
+            //printf("end\n");
+            pthread_mutex_unlock(&lock);
         }
         void reset(board &b){
             rboard = b;
