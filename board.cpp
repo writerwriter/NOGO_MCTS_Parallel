@@ -1,5 +1,5 @@
 #include "board.h"
-
+#include <random>
 const boardcn board::nb;
 
 board::board(){}
@@ -57,7 +57,7 @@ void board::getAllLiberty(){
         for(j = 0; j < BOARDCUL; j++){
             u = r = d = l = -1;
             t = i * BOARDCUL + j;
-            if(!bitb[0].get(t) && !bitb[1].get(t)){ //若無子 代表有可能成為氣
+            if(!bitb[0].get(t) && !bitb[1].get(t)){ //?�無�?�?��?�可?��??�氣
                 if(i != 0){
                     if(bitb[0].get(t - BOARDCUL) || bitb[1].get(t - BOARDCUL)){
                         u = findParent(t - BOARDCUL);
@@ -92,13 +92,13 @@ void board::getAllLiberty(){
     }
 }
 
-int board::findParent(int i){  //找區塊相連的最左上點
+int board::findParent(int i){  //?��?塊相????�左�?�?    
     char &j = parent[i];
     if(j == parent[j]) return j;
     return j = findParent(j);
 }
 
-void board::unite(int x, int y){   //把兩區塊相連起來 更改區塊左上點
+void board::unite(int x, int y){   //?�兩?�塊相??���??�改?�塊左上�?
     char i = findParent(x), j = findParent(y);
     if(i < j) parent[j] = i;
     else parent[i] = j;
@@ -239,11 +239,15 @@ int board::simulate(){
     memset(wlegal, 0, sizeof(wlegal));
     getlegalmove(blegal, wlegal, blegalsize, wlegalsize);
     bool j = !just_play_color();
+    random_device rd;
+    static mt19937 generator = mt19937(rd());
     while(true){
         FLAG:
         if(j == BLACK){
             while(blegalsize > 0){
-                int i = rand() % blegalsize;
+                //int i = rand() % blegalsize;
+                uniform_int_distribution<int> distribution(0, blegalsize - 1);
+                int i = distribution(generator);
                 int k = blegal[i];
                 blegal[i] = blegal[blegalsize - 1];
                 blegalsize--;
@@ -257,7 +261,9 @@ int board::simulate(){
         }
         else if(j == WHITE){
             while(wlegalsize > 0){
-                int i = rand() % wlegalsize;
+                uniform_int_distribution<int> distribution(0, wlegalsize - 1);
+                int i = distribution(generator);
+                //int i = rand() % wlegalsize;
                 int k = wlegal[i];
                 wlegal[i] = wlegal[wlegalsize - 1];
                 wlegalsize--;
