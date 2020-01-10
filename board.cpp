@@ -57,7 +57,7 @@ void board::getAllLiberty(){
         for(j = 0; j < BOARDCUL; j++){
             u = r = d = l = -1;
             t = i * BOARDCUL + j;
-            if(!bitb[0].get(t) && !bitb[1].get(t)){ //若無子 代表有可能成為氣
+            if(!bitb[0].get(t) && !bitb[1].get(t)){ //?�無�?�?��?�可?��??�氣
                 if(i != 0){
                     if(bitb[0].get(t - BOARDCUL) || bitb[1].get(t - BOARDCUL)){
                         u = findParent(t - BOARDCUL);
@@ -92,13 +92,13 @@ void board::getAllLiberty(){
     }
 }
 
-int board::findParent(int i){  //找區塊相連的最左上點
+int board::findParent(int i){  //?��?塊相????�左�?�?    
     char &j = parent[i];
     if(j == parent[j]) return j;
     return j = findParent(j);
 }
 
-void board::unite(int x, int y){   //把兩區塊相連起來 更改區塊左上點
+void board::unite(int x, int y){   //?�兩?�塊相??���??�改?�塊左上�?
     char i = findParent(x), j = findParent(y);
     if(i < j) parent[j] = i;
     else parent[i] = j;
